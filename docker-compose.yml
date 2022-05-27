@@ -1,7 +1,9 @@
 services:
   sender_worker: 
        container_name: sender
-       build: ./SenderWorker
+       build: 
+        context: ./
+        dockerfile: ./SenderWorker/Dockerfile
        networks:
         - efk_network
        restart: always
@@ -9,7 +11,9 @@ services:
         - fluentd
   receiver_worker: 
        container_name: receiver
-       build: ./ReceiverWorker
+       build: 
+        context: ./
+        dockerfile: ./ReceiverWorker/Dockerfile
        networks:
         - efk_network
        restart: always
