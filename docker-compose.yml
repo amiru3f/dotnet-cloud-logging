@@ -9,6 +9,8 @@ services:
        restart: always
        depends_on:
         - fluentd
+        - elastic
+        - kibana
   receiver_worker: 
        container_name: receiver
        build: 
@@ -19,6 +21,8 @@ services:
        restart: always
        depends_on:
         - fluentd
+        - elastic
+        - kibana
   fluentd:
        container_name: fluentd
        build: ./
@@ -33,9 +37,15 @@ services:
        ports:
         - "24224:24224"
         - "24224:24224/udp"
+      
 ############################# Elastic Search ###############################
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.2.2
+    healthcheck:
+        test: ["CMD", "telnet", "localhost:9200"]
+        interval: 30s
+        timeout: 120s
+        retries: 5
     container_name: elastic
     ports:
       - "9200:9200"
@@ -46,10 +56,14 @@ services:
     networks:
       - efk_network
     restart: always
-############################# Kibana ###############################
   kibana:
     image: docker.elastic.co/kibana/kibana:8.2.2
     container_name: kibana
+    healthcheck:
+        test: ["CMD", "curl", "localhost:5601/app/home"]
+        interval: 60s
+        timeout: 10s
+        retries: 5
     depends_on:
       - elastic
     ports:
